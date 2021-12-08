@@ -105,7 +105,7 @@ class ThermostatPopupCard extends LitElement {
                 <div id="slider-center">
                   <div class="values">
                     <div class="notice">
-                      Eingestellt auf
+                      ${this.hass.localize(`component.climate.state._.${stateObj.state}`)}
                     </div>
                     <div class="value">
                       ${
