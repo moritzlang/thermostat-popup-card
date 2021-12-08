@@ -86,36 +86,6 @@ class ThermostatPopupCard extends LitElement {
       <div class="${fullscreen === true ? 'popup-wrapper':''}">
         <div class="${classMap({[mode]: true})}" style="display:flex;width:100%;height:100%;">
           <div id="popup" class="popup-inner" @click="${e => this._close(e)}">
-            <div class="info${fullscreen === true ? ' fullscreen':''}">
-              <div class="temp ${mode}">
-                ${currentTemp}&#176;
-              </div>
-              <div class="right">
-                <div class="name">${name}</div>
-                <div class="action">
-                ${
-                  stateObj.attributes.hvac_action
-                    ? this.hass!.localize(
-                        `state_attributes.climate.hvac_action.${stateObj.attributes.hvac_action}`
-                      )
-                    : this.hass!.localize(`state.climate.${stateObj.state}`)
-                }
-                ${
-                  stateObj.attributes.preset_mode &&
-                  stateObj.attributes.preset_mode !== "none"
-                    ? html`
-                        -
-                        ${this.hass!.localize(
-                          `state_attributes.climate.preset_mode.${stateObj.attributes.preset_mode}`
-                        ) || stateObj.attributes.preset_mode}
-                      `
-                    : ""
-                }
-                ${this._setTemp}&#176;</div>
-              </div>
-            </div>
-
-
             <div id="controls">
               <div id="slider">
                 <custom-round-slider
@@ -134,25 +104,8 @@ class ThermostatPopupCard extends LitElement {
 
                 <div id="slider-center">
                   <div class="values">
-                    <div class="action">
-                      ${
-                        stateObj.attributes.hvac_action
-                          ? this.hass!.localize(
-                              `state_attributes.climate.hvac_action.${stateObj.attributes.hvac_action}`
-                            )
-                          : this.hass!.localize(`state.climate.${stateObj.state}`)
-                      }
-                      ${
-                        stateObj.attributes.preset_mode &&
-                        stateObj.attributes.preset_mode !== "none"
-                          ? html`
-                              -
-                              ${this.hass!.localize(
-                                `state_attributes.climate.preset_mode.${stateObj.attributes.preset_mode}`
-                              ) || stateObj.attributes.preset_mode}
-                            `
-                          : ""
-                      }
+                    <div class="notice">
+                      Eingestellt auf
                     </div>
                     <div class="value">
                       ${
@@ -161,19 +114,19 @@ class ThermostatPopupCard extends LitElement {
                           : Array.isArray(this._setTemp)
                           ? _stepSize === 1
                             ? svg`
-                                ${this._setTemp[0].toFixed()}&#176; -
-                                ${this._setTemp[1].toFixed()}&#176;
+                                ${this._setTemp[0].toFixed().replace('.', ',')}&#176; -
+                                ${this._setTemp[1].toFixed().replace('.', ',')}&#176;
                                 `
                             : svg`
-                                ${this._setTemp[0].toFixed(1)}&#176; -
-                                ${this._setTemp[1].toFixed(1)}&#176;
+                                ${this._setTemp[0].toFixed(1).replace('.', ',')}&#176; -
+                                ${this._setTemp[1].toFixed(1).replace('.', ',')}&#176;
                                 `
                           : _stepSize === 1
                           ? svg`
-                                ${this._setTemp.toFixed()}&#176;
+                                ${this._setTemp.toFixed().replace('.', ',')}&#176;
                                 `
                           : svg`
-                                ${this._setTemp.toFixed(1)}&#176;
+                                ${this._setTemp.toFixed(1).replace('.', ',')}&#176;
                                 `
                       }
                     </div>
@@ -365,12 +318,12 @@ class ThermostatPopupCard extends LitElement {
   static get styles() {
     return css`
         :host {
-            --auto-color: #97b957;
+            --auto-color: #3dd553;
             --eco-color: springgreen;
             --cool-color: #2b9af9;
-            --heat-color: #EE7600;
+            --heat-color: #fc9426;
             --manual-color: #44739e;
-            --off-color: lightgrey;
+            --off-color: #454548;
             --fan_only-color: #8a8a8a;
             --dry-color: #efbd07;
             --idle-color: #00CC66;
@@ -391,6 +344,7 @@ class ThermostatPopupCard extends LitElement {
           align-items: center;
           justify-content: center;
           flex-direction: column;
+          font-family: 'SF Display';
         }
         .popup-inner.off {
           display:none;
@@ -558,7 +512,7 @@ class ThermostatPopupCard extends LitElement {
           box-sizing: border-box;
           border-radius: 100%;
           left: 60px;
-          top: 60px;
+          top: 65px;
           text-align: center;
           overflow-wrap: break-word;
           pointer-events: none;
@@ -572,17 +526,30 @@ class ThermostatPopupCard extends LitElement {
           height:100%;
           width:100%;
         }
+        .values .value {
+          color: #FFF;
+          font-size: 4em;
+          line-height: 4rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          color: rgba(255, 255, 255, 0.8);
+        }
+        .values .notice {
+          color: #f19629;
+          font-size: 1em;
+          font-weight: 700;
+          text-transform:uppercase;
+          margin-bottom: 0.2rem;
+        }
         .values .action {
-          color:#f4b941;
-          font-size:10px;
+          font-size: 0.7em;
+          font-weight: 700;
           text-transform:uppercase;
         }
-        .values .value {
-          color:#FFF;
-          font-size:60px;
-          line-height: 60px;
-        }
         
+        #modes {
+          margin-top: -40px;
+        }
         #modes > * {
           color: var(--disabled-text-color);
           cursor: pointer;
@@ -956,7 +923,7 @@ class CustomRoundSlider extends LitElement {
               />
               <path
                 class="block-dash"
-                stroke-dasharray="2, 25"
+                stroke-dasharray="2, 15"
                 vector-effect="non-scaling-stroke"
                 d=${this._renderArc(
                   this._start,
@@ -1016,7 +983,7 @@ class CustomRoundSlider extends LitElement {
       }
       .block-dash {
         stroke-width: var(--round-slider-dash-width, 20);
-        stroke: var(--round-slider-block-dash-color, rgba(255,255,255,0.1));
+        stroke: var(--round-slider-block-dash-color, rgba(244, 244, 255, 0.03));
       }
       g.handles {
         stroke: var(--round-slider-handle-color, var(--round-slider-bar-color, deepskyblue));
